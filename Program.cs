@@ -7,42 +7,32 @@ namespace _1_Single_Responsibility
         static void Main(string[] args)
         {
             /*
-                This is an example of a class which egregiously violates the Single Responsibility Principle.
-                This one class deals with:
-                    messages to the user
-                    input from the user
-                    validation
-                    username generation
-                If any one of these things has to change, Program.cs has to be edited!
+                This class no longer violates the SRP.
+                We have separated out several classes, each of which has one function,
+                which could plausibly be changed in isolation.
+
+                NB this app still isn't SOLID! For example, Dependency Inversion is
+                broken, as a Person is instantiated directly inside Main().
             */
 
             //Welcome message
-            Console.WriteLine("Welcome to Hodgey's Username Generator Console App!");
+            Messages.WelcomeMessage();
 
             //Get required user information
-            Person user = new Person();
-            Console.Write("Please give your first name: ");
-            user.FirstName = Console.ReadLine();
-            Console.Write("Please give your last name: ");
-            user.LastName = Console.ReadLine();
+            Person user = PersonDataCapture.Capture();
 
             //Validate user information
-            if (string.IsNullOrWhiteSpace(user.FirstName))
+            bool isUserValid = PersonValidator.Validate(user);
+            if (!isUserValid)
             {
-                Console.WriteLine("Invalid first name given!");
-                Console.ReadLine();
+                Messages.ExitMessage("");
                 return;
             }
-            if (string.IsNullOrWhiteSpace(user.LastName))
-            {
-                Console.WriteLine("Invalid last name given!");
-                Console.ReadLine();
-                return;
-            }
-            
+
             //Generate Username
-            Console.WriteLine($"Your Username is: {user.FirstName.Substring(0, 1)}{user.LastName}{(new System.Random()).Next(0, 9)}");
-            Console.ReadLine();
+            AccountGenerator.CreateAccount(user);
+            Messages.ExitMessage("");
+            return;
         }
     }
 }
